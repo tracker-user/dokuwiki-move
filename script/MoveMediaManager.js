@@ -1,6 +1,19 @@
 /**
  * Integrates move capability into the media manager
  * Based on the implementation in diagrams plugin
+ *
+ * Local fork modification vs upstream (fec3759, 2025-06-09):
+ *   - Class private method syntax (`#methodName`) replaced with the
+ *     underscore-prefix convention (`__methodName`). The `#` syntax is an
+ *     ECMAScript 2022 feature that requires Chrome 80+ / Firefox 90+ /
+ *     Safari 15+. On older JS engines the entire file fails to parse with
+ *     SyntaxError, which cascades through DokuWiki's script concatenation
+ *     (script/* files are inlined into one big script.js) and breaks every
+ *     other piece of move-plugin JS on the page.
+ *
+ *     Functionally equivalent: these methods are only called from inside
+ *     the class via `this.methodName.bind(this)`, so they don't need
+ *     language-enforced privacy — convention is sufficient.
  */
 class MoveMediaManager {
 
@@ -10,7 +23,7 @@ class MoveMediaManager {
 
         const filePanel = document.querySelector('#mediamanager__page .panel.file');
         if (filePanel) {
-            const observer = new MutationObserver(this.#addMoveButton.bind(this));
+            const observer = new MutationObserver(this.__addMoveButton.bind(this));
             observer.observe(filePanel, {childList: true, subtree: true});
         }
     }
@@ -21,7 +34,7 @@ class MoveMediaManager {
      * @param mutationsList
      * @param observer
      */
-    async #addMoveButton(mutationsList, observer) {
+    async __addMoveButton(mutationsList, observer) {
         for (let mutation of mutationsList) {
             // div.file has been filled with new content?
             if (mutation.type !== 'childList') continue;
@@ -43,7 +56,7 @@ class MoveMediaManager {
             moveButton.classList.add('move-btn');
             moveButton.innerText = LANG.plugins.move.moveButton;
 
-            moveButton.addEventListener('click',  this.#showDialog.bind(this, src));
+            moveButton.addEventListener('click',  this.__showDialog.bind(this, src));
             actionList.appendChild(moveButton);
         }
     }
@@ -57,11 +70,11 @@ class MoveMediaManager {
      * @param {Event} event
      * @returns {Promise<void>}
      */
-    async #showDialog(src, event) {
+    async __showDialog(src, event) {
         event.preventDefault();
         event.stopPropagation();
 
-        const $form = jQuery(this.#buildForm(src));
+        const $form = jQuery(this.__buildForm(src));
         $form.dialog({
             title: LANG.plugins.move.moveButton,
             width: 600,
@@ -81,7 +94,7 @@ class MoveMediaManager {
      * @param {string} src
      * @returns {HTMLDivElement}
      */
-    #buildForm(src) {
+    __buildForm(src) {
         const wrapper = document.createElement('div');
         const form = document.createElement('form');
         wrapper.appendChild(form);
@@ -124,7 +137,7 @@ class MoveMediaManager {
         button.innerText = LANG.plugins.move.moveButton;
         form.appendChild(button);
 
-        form.addEventListener('submit', this.#requestMove.bind(this, form));
+        form.addEventListener('submit', this.__requestMove.bind(this, form));
 
         return wrapper;
     }
@@ -136,7 +149,7 @@ class MoveMediaManager {
      * @param {Event} event
      * @returns {Promise<void>}
      */
-    async #requestMove(form, event) {
+    async __requestMove(form, event) {
 
         event.preventDefault();
         event.stopPropagation();
