@@ -35,7 +35,7 @@ class action_plugin_move_progress extends DokuWiki_Action_Plugin {
         global $INPUT;
         global $USERINFO;
 
-        if(!auth_ismanager($_SERVER['REMOTE_USER'], $USERINFO['grps'])) {
+        if(!auth_ismanager($INPUT->server->str('REMOTE_USER'), $USERINFO['grps'] ?? [])) {
             http_status(403);
             exit;
         }

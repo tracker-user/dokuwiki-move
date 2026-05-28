@@ -20,7 +20,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
     /**
      * @var array stores the affected pages of the last operation
      */
-    protected $affectedPages = array();
+    protected $affectedPages = [];
 
     /**
      * Check if the given page can be moved to the given destination
@@ -44,7 +44,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         // checklock checks if the page lock hasn't expired and the page hasn't been locked by another user
         // the file exists check checks if the page is reported unlocked if a lock exists which means that
         // the page is locked by the current user
-        if(checklock($src) !== false || @file_exists(wikiLockFN($src))) {
+        if(checklock($src) !== false || file_exists(wikiLockFN($src))) {
             msg(sprintf($this->getLang('filelocked'), $src), -1);
             return false;
         }
@@ -95,7 +95,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         }
 
         // Check the page does not already exist
-        if(@file_exists(mediaFN($dst))) {
+        if(file_exists(mediaFN($dst))) {
             msg(sprintf($this->getLang('mediaexists'), $src, $dst), -1);
             return false;
         }
@@ -145,18 +145,18 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         $dst_name = noNS($dst);
 
         // pass this info on to other plugins
-        $eventdata = array(
+        $eventdata = [
             // this is for compatibility to old plugin
-            'opts'           => array(
+            'opts'           => [
                 'ns'      => $src_ns,
                 'name'    => $src_name,
                 'newns'   => $dst_ns,
                 'newname' => $dst_name,
-            ),
+            ],
             'affected_pages' => &$affected_pages,
             'src_id'         => $src,
             'dst_id'         => $dst,
-        );
+        ];
 
         // give plugins the option to add their own meta files to the list of files that need to be moved
         // to the oldfiles/newfiles array or to adjust their own metadata, database, ...
@@ -200,7 +200,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             saveWikiText($dst, $text, $summary);
 
             // Delete the orginal file
-            if(@file_exists(wikiFN($dst))) {
+            if(file_exists(wikiFN($dst))) {
                 saveWikiText($src, '', $summary);
             }
 
@@ -247,18 +247,18 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         $dst_name = noNS($dst);
 
         // pass this info on to other plugins
-        $eventdata = array(
+        $eventdata = [
             // this is for compatibility to old plugin
-            'opts'           => array(
+            'opts'           => [
                 'ns'      => $src_ns,
                 'name'    => $src_name,
                 'newns'   => $dst_ns,
                 'newname' => $dst_name,
-            ),
+            ],
             'affected_pages' => &$affected_pages,
             'src_id'         => $src,
             'dst_id'         => $dst,
-        );
+        ];
 
         // give plugins the option to add their own meta files to the list of files that need to be moved
         // to the oldfiles/newfiles array or to adjust their own metadata, database, ...

@@ -2,6 +2,6 @@ base   move
 author Michael Hamann, Gary Owen, Arno Puschmann, Christoph Jähnigen, TrackerUser
 email  michael@content-space.de
 date   2077-06-09
-name   Move plugin
+name   Move
 desc   Move and rename pages and media files whilst maintaining the links (local fork — Update suppressed)
 url    https://github.com/tracker-user/dokuwiki-move

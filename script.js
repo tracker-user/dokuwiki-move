@@ -4,7 +4,6 @@
  * be sure to touch this file when one of the scripts has been updated to refresh caching
  */
 
-/* DOKUWIKI:include_once script/json2.js */
 /* DOKUWIKI:include script/MoveMediaManager.js */
 
 jQuery(function() {

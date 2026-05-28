@@ -6,7 +6,7 @@
  * @author     Gary Owen <>
  */
 
-$lang['menu']       = 'Move pages and namespaces';
+$lang['menu']       = 'Move Pages and Namespaces';
 $lang['inprogress'] = '(move pending)';
 $lang['treelink']   = 'Alternatively to this simple form you can manage complex restructuring of your wiki using the <a href="%s">tree-based move manager</a>.';
 

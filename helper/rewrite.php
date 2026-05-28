@@ -210,19 +210,19 @@ class helper_plugin_move_rewrite extends Plugin {
     public function rewrite($id, $text) {
         $meta = $this->getMoveMeta($id);
 
-        $handlers = array();
+        $handlers = [];
         $pages    = $meta['pages'];
         $media    = $meta['media'];
         $origin   = $meta['origin'];
         if($origin == '') $origin = $id;
 
-        $data = array(
+        $data = [
             'id'          => $id,
             'origin'      => &$origin,
             'pages'       => &$pages,
             'media_moves' => &$media,
             'handlers'    => &$handlers
-        );
+        ];
 
         /*
          * PLUGIN_MOVE_HANDLERS REGISTER event:

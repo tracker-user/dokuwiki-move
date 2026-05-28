@@ -1,4 +1,6 @@
 <?php
+// must be run within Dokuwiki
+if(!defined('DOKU_INC')) die();
 
 class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
 
@@ -19,7 +21,7 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
      *
      * @return bool false
      */
-    function forAdminOnly() {
+    public function forAdminOnly() {
         return false;
     }
 
@@ -58,9 +60,9 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
             $form->addHidden('id', $ID);
             $form->addHidden('page', 'move_main');
             $form->addHidden('json', '');
-            $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', '', ($this->getConf('autoskip') ? array('checked' => 'checked') : array())));
+            $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', '', ($this->getConf('autoskip') ? ['checked' => 'checked'] : [])));
             $form->addElement('<br />');
-            $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', '', ($this->getConf('autorewrite') ? array('checked' => 'checked') : array())));
+            $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', '', ($this->getConf('autorewrite') ? ['checked' => 'checked'] : [])));
             $form->addElement('<br />');
             $form->addElement('<br />');
             $form->addElement(form_makeButton('submit', 'admin', $this->getLang('btn_start')));
@@ -132,9 +134,11 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
      *
      * User function for html_buildlist()
      *
+     * @param array $item
+     * @return string
      * @author Andreas Gohr <andi@splitbrain.org>
      */
-    function html_list($item) {
+    public function html_list($item) {
         $ret = '';
         // what to display
         if(!empty($item['label'])) {
@@ -152,12 +156,12 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
 
         // namespace or page?
         if($item['type'] == 'd') {
-            $ret .= '<a href="' . $item['id'] . '" class="idx_dir">';
-            $ret .= $base;
+            $ret .= '<a href="' . hsc($item['id']) . '" class="idx_dir">';
+            $ret .= hsc($base);
             $ret .= '</a>';
         } else {
             $ret .= '<a class="wikilink1">';
-            $ret .= noNS($item['id']);
+            $ret .= hsc(noNS($item['id']));
             $ret .= '</a>';
         }
 
@@ -173,7 +177,7 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin {
      * @param array $item
      * @return string
      */
-    function html_li($item) {
+    public function html_li($item) {
         if($item['id'] == '*') $item['id'] = '';
 
         $params          = array();

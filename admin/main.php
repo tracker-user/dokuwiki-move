@@ -38,7 +38,7 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      *
      * @return int The sort number
      */
-    function getMenuSort() {
+    public function getMenuSort() {
         return 1011;
     }
 
@@ -47,14 +47,14 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      *
      * @return bool false
      */
-    function forAdminOnly() {
+    public function forAdminOnly() {
         return false;
     }
 
     /**
      * Handle the input
      */
-    function handle() {
+    public function handle() {
         global $INPUT;
 
         // create a new plan if possible and sufficient data was given
@@ -80,7 +80,7 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
     /**
      * Display the interface
      */
-    function html() {
+    public function html() {
         // decide what to do based on the plan's state
         if($this->plan->isCommited()) {
             $this->GUI_progress();
@@ -168,7 +168,7 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
         printf($this->getLang('treelink'), $treelink);
         echo '</p>';
 
-        $form = new Doku_Form(array('action' => wl($ID), 'method' => 'post', 'class' => 'plugin_move_form'));
+        $form = new Doku_Form(['action' => wl($ID), 'method' => 'post', 'class' => 'plugin_move_form']);
         $form->addHidden('page', 'move_main');
         $form->addHidden('id', $ID);
 
@@ -178,10 +178,10 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
         $form->addElement(form_makeRadioField('class', 'namespace', $this->getLang('movens') . ' <code>' . getNS($ID) . '</code>', '', 'block radio click-ns'));
 
         $form->addElement(form_makeTextField('dst', $ID, $this->getLang('dst'), '', 'block indent'));
-        $form->addElement(form_makeMenuField('type', array('pages' => $this->getLang('move_pages'), 'media' => $this->getLang('move_media'), 'both' => $this->getLang('move_media_and_pages')), 'both', $this->getLang('content_to_move'), '', 'block indent select'));
+        $form->addElement(form_makeMenuField('type', ['pages' => $this->getLang('move_pages'), 'media' => $this->getLang('move_media'), 'both' => $this->getLang('move_media_and_pages')], 'both', $this->getLang('content_to_move'), '', 'block indent select'));
 
-        $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', 'block', ($this->getConf('autoskip') ? array('checked' => 'checked') : array())));
-        $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', 'block', ($this->getConf('autorewrite') ? array('checked' => 'checked') : array())));
+        $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', 'block', ($this->getConf('autoskip') ? ['checked' => 'checked'] : [])));
+        $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', 'block', ($this->getConf('autorewrite') ? ['checked' => 'checked'] : [])));
 
         $form->addElement(form_makeButton('submit', 'admin', $this->getLang('btn_start')));
         $form->endFieldset();
@@ -258,12 +258,12 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
         $class = 'move__control ctlfrm-' . $id;
         if(!$show) $class .= ' hide';
 
-        $form = new Doku_Form(array('action' => wl($ID), 'method' => 'post', 'class' => $class));
+        $form = new Doku_Form(['action' => wl($ID), 'method' => 'post', 'class' => $class]);
         $form->addHidden('page', 'move_main');
         $form->addHidden('id', $ID);
         $form->addHidden('ctl', $control);
         $form->addHidden('skip', $skip);
-        $form->addElement(form_makeButton('submit', 'admin', $label, array('class' => 'btn ctl-' . $control)));
+        $form->addElement(form_makeButton('submit', 'admin', $label, ['class' => 'btn ctl-' . $control]));
         $form->printForm();
     }
 }

@@ -29,7 +29,7 @@ class action_plugin_move_rewrite extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event The event object
      * @param mixed      $param Optional parameters (not used)
      */
-    function handle_read(Doku_Event $event, $param) {
+    public function handle_read(Doku_Event $event, $param) {
         global $ACT, $conf;
         static $stack = array();
         // handle only reads of the current revision
@@ -63,7 +63,7 @@ class action_plugin_move_rewrite extends DokuWiki_Action_Plugin {
             // checklock checks if the page lock hasn't expired and the page hasn't been locked by another user
             // the file exists check checks if the page is reported unlocked if a lock exists which means that
             // the page is locked by the current user
-            || checklock($id) !== false || @file_exists(wikiLockFN($id))
+            || checklock($id) !== false || file_exists(wikiLockFN($id))
         ) return;
 
         /** @var helper_plugin_move_rewrite $helper */
@@ -81,7 +81,7 @@ class action_plugin_move_rewrite extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event The even object
      * @param mixed      $param Optional parameters (not used)
      */
-    function handle_cache(Doku_Event $event, $param) {
+    public function handle_cache(Doku_Event $event, $param) {
         global $conf;
         /** @var $cache cache_parser */
         $cache = $event->data;

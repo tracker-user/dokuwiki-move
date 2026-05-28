@@ -51,7 +51,8 @@ jQuery('#plugin_move__progress').each(function () {
                 $this.find('.controls img').addClass('hide');
 
                 if (data.error) {
-                    $this.find('.output').html('<p><div class="error">' + data.error + '</div></p>');
+                    var $errDiv = jQuery('<div class="error">').text(data.error);
+                    $this.find('.output').empty().append(jQuery('<p>').append($errDiv));
                     setButtons(true);
                 } else if (data.complete) {
                     $progressbar.progressbar('option', 'value', 100);

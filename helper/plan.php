@@ -37,29 +37,29 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
     /**
      * @var array the options for this move plan
      */
-    protected $options = array(); // defaults are set in loadOptions()
+    protected $options = []; // defaults are set in loadOptions()
 
     /**
      * @var array holds the location of the different list and state files
      */
-    protected $files = array();
+    protected $files = [];
 
     /**
      * @var array the planned moves
      */
-    protected $plan = array();
+    protected $plan = [];
 
     /**
      * @var array temporary holder of document lists
      */
-    protected $tmpstore = array(
-        'pages' => array(),
-        'media' => array(),
-        'ns'    => array(),
-        'affpg' => array(),
-        'miss'  => array(),
-        'miss_media'  => array(),
-    );
+    protected $tmpstore = [
+        'pages' => [],
+        'media' => [],
+        'ns'    => [],
+        'affpg' => [],
+        'miss'  => [],
+        'miss_media'  => [],
+    ];
 
     /** @var helper_plugin_move_op $MoveOperator */
     protected $MoveOperator = null;
@@ -73,15 +73,15 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
         global $conf;
 
         // set the file locations
-        $this->files = array(
-            'opts'       => $conf['metadir'] . '/__move_opts',
-            'pagelist'   => $conf['metadir'] . '/__move_pagelist',
-            'medialist'  => $conf['metadir'] . '/__move_medialist',
-            'affected'   => $conf['metadir'] . '/__move_affected',
-            'namespaces' => $conf['metadir'] . '/__move_namespaces',
-            'missing'    => $conf['metadir'] . '/__move_missing',
-            'missing_media'    => $conf['metadir'] . '/__move_missing_media',
-        );
+        $this->files = [
+            'opts'            => $conf['metadir'] . '/__move_opts',
+            'pagelist'        => $conf['metadir'] . '/__move_pagelist',
+            'medialist'       => $conf['metadir'] . '/__move_medialist',
+            'affected'        => $conf['metadir'] . '/__move_affected',
+            'namespaces'      => $conf['metadir'] . '/__move_namespaces',
+            'missing'         => $conf['metadir'] . '/__move_missing',
+            'missing_media'   => $conf['metadir'] . '/__move_missing_media',
+        ];
 
         $this->MoveOperator = plugin_load('helper', 'move_op');
 
@@ -96,7 +96,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
      */
     protected function loadOptions() {
         // (re)set defaults
-        $this->options = array(
+        $this->options = [
             // status
             'committed'   => false,
             'started'     => 0,
@@ -115,12 +115,12 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
 
             // errors
             'lasterror'   => false
-        );
+        ];
 
         // merge whatever options are saved currently
         $file = $this->files['opts'];
         if(file_exists($file)) {
-            $options       = unserialize(io_readFile($file, false));
+            $options       = unserialize(io_readFile($file, false), ['allowed_classes' => false]);
             $this->options = array_merge($this->options, $options);
         }
     }
@@ -256,12 +256,12 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
         $src = cleanID($src);
         $dst = cleanID($dst);
 
-        $this->plan[] = array(
+        $this->plan[] = [
             'src'   => $src,
             'dst'   => $dst,
             'class' => $class,
             'type'  => $type
-        );
+        ];
     }
 
     /**
@@ -367,31 +367,33 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
 
         helper_plugin_move_rewrite::addLock();
 
-        if(@filesize($this->files['pagelist']) > 1) {
+        if(file_exists($this->files['pagelist']) && filesize($this->files['pagelist']) > 1) {
             $todo = $this->stepThroughDocuments(self::TYPE_PAGES, $skip);
             if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
         }
 
-        if(@filesize($this->files['medialist']) > 1) {
+        if(file_exists($this->files['medialist']) && filesize($this->files['medialist']) > 1) {
             $todo = $this->stepThroughDocuments(self::TYPE_MEDIA, $skip);
             if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
         }
 
-        if(@filesize($this->files['missing']) > 1 && @filesize($this->files['affected']) > 1) {
+        if(file_exists($this->files['missing']) && filesize($this->files['missing']) > 1
+            && file_exists($this->files['affected']) && filesize($this->files['affected']) > 1) {
             $todo = $this->stepThroughMissingDocuments(self::TYPE_PAGES);
             if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
         }
 
-        if(@filesize($this->files['missing_media']) > 1 && @filesize($this->files['affected']) > 1) {
+        if(file_exists($this->files['missing_media']) && filesize($this->files['missing_media']) > 1
+            && file_exists($this->files['affected']) && filesize($this->files['affected']) > 1) {
             $todo = $this->stepThroughMissingDocuments(self::TYPE_MEDIA);
-            if($todo === false)return $this->storeError();
+            if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
         }
 
-        if(@filesize($this->files['namespaces']) > 1) {
+        if(file_exists($this->files['namespaces']) && filesize($this->files['namespaces']) > 1) {
             $todo = $this->stepThroughNamespaces();
             if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
@@ -399,7 +401,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
 
         helper_plugin_move_rewrite::removeAllLocks();
 
-        if($this->options['autorewrite'] && @filesize($this->files['affected']) > 1) {
+        if($this->options['autorewrite'] && file_exists($this->files['affected']) && filesize($this->files['affected']) > 1) {
             $todo = $this->stepThroughAffectedPages();
             if($todo === false) return $this->storeError();
             return max($todo, 1); // force one more call
@@ -419,7 +421,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
         $html = '';
 
         $html .= '<ul>';
-        if(@file_exists($this->files['pagelist'])) {
+        if(file_exists($this->files['pagelist'])) {
             $pagelist = file($this->files['pagelist']);
             foreach($pagelist as $line) {
                 list($old, $new) = explode("\t", trim($line));
@@ -431,7 +433,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
                 $html .= '</div></li>';
             }
         }
-        if(@file_exists($this->files['medialist'])) {
+        if(file_exists($this->files['medialist'])) {
             $medialist = file($this->files['medialist']);
             foreach($medialist as $line) {
                 list($old, $new) = explode("\t", trim($line));
@@ -443,7 +445,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
                 $html .= '</div></li>';
             }
         }
-        if(@file_exists($this->files['affected'])) {
+        if(file_exists($this->files['affected'])) {
             $medialist = file($this->files['affected']);
             foreach($medialist as $page) {
                 $html .= '<li class="affected"><div class="li">';
@@ -479,6 +481,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
         }
 
         $doclist = fopen($file, 'a+');
+        $return_items_run = 0;
 
         for($i = 0; $i < helper_plugin_move_plan::OPS_PER_RUN; $i++) {
             $log = "";
@@ -630,7 +633,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
             $FileMover->moveNamespaceSubscription($src, $dst);
         }
 
-        @unlink($this->files['namespaces']);
+        if(file_exists($this->files['namespaces'])) unlink($this->files['namespaces']);
         return 0;
     }
 
@@ -798,14 +801,14 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
      * @throws Exception
      */
     protected function storeDocumentLists() {
-        $lists = array(
-            'pages' => $this->files['pagelist'],
-            'media' => $this->files['medialist'],
-            'ns'    => $this->files['namespaces'],
-            'affpg' => $this->files['affected'],
-            'miss'  => $this->files['missing'],
+        $lists = [
+            'pages'       => $this->files['pagelist'],
+            'media'       => $this->files['medialist'],
+            'ns'          => $this->files['namespaces'],
+            'affpg'       => $this->files['affected'],
+            'miss'        => $this->files['missing'],
             'miss_media'  => $this->files['missing_media'],
-        );
+        ];
 
         foreach($lists as $store => $file) {
             // anything to do?

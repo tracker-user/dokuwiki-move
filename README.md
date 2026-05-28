@@ -1,6 +1,6 @@
 # Move plugin for DokuWiki — local fork
 
-Local fork of the [Move plugin](https://www.dokuwiki.org/plugin:move) tracking upstream `fec3759` (2025-06-09). This is a **near-version-pin** fork: only one file has been modified relative to upstream, plus the `plugin.info.txt` freeze.
+Local fork of the [Move plugin](https://www.dokuwiki.org/plugin:move) tracking upstream `fec3759` (2025-06-09).
 
 ## What changed in the local fork
 
@@ -28,21 +28,43 @@ If a browser doesn't understand the `#name` syntax, the whole file fails to pars
 
 Only `script/MoveMediaManager.js` needed patching — the other JS files (`tree.js`, `progress.js`, `rename.js`, `form.js`) use `#` only in CSS-selector strings (e.g. `jQuery('#plugin_move__tree')`), which are normal string literals and not affected.
 
+### Code review pass (2026-05-28)
+
+Applied as a separate pass over all PHP, JS, and translation files:
+
+**Security**
+- `action/progress.php`, `action/tree.php`, `action/tree.php`: replaced `$_SERVER['REMOTE_USER']` with `$INPUT->server->str('REMOTE_USER')` per DokuWiki input conventions; added `?? []` null guard on `$USERINFO['grps']`
+- `action/rename.php` `renameOkay()`: same `$_SERVER` → `$INPUT` fix; removed `@` on `file_exists()`
+- `action/rename.php` `handleAjaxMediaManager()`: `(array) $USERINFO['grps']` → `$USERINFO['grps'] ?? []`
+- `helper/plan.php`: added `['allowed_classes' => false]` to `unserialize()` call
+- `admin/tree.php` `html_list()`: wrapped `$item['id']` and page name outputs in `hsc()` to prevent XSS
+- `script/rename.js`: error injection changed from `.html()` to `.text()` via `jQuery('<p>').text()`
+- `script/progress.js`: AJAX error injection changed from `.html(…+data.error+…)` to `.text()` construction
+
+**Correctness**
+- `admin/tree.php`, `remote.php`: added missing `DOKU_INC` guards
+- `admin/main.php`, `admin/tree.php`, `action/rewrite.php`: added `public` visibility to 9 methods that were missing it
+- `helper/plan.php` `stepThroughDocuments()`: initialised `$return_items_run = 0` before the loop to prevent use of undefined variable on empty file
+
+**Cleanup**
+- Removed `@` error suppression: `@filesize()` → `file_exists() && filesize()`, `@file_exists()` → `file_exists()`, `@opendir()` → `opendir()`, `@unlink()` → `file_exists() && unlink()` across `helper/plan.php`, `helper/op.php`, `helper/file.php`, `action/rewrite.php`
+- `script.js`: removed dead `json2.js` polyfill include (native JSON available in all supported browsers)
+- `array()` → `[]` modernisation across all modified PHP files
+
+**Translations**
+- `lang/ru/lang.php`: added `extensionchange`, `js.moveButton`, `js.dialogIntro`
+- `lang/ja/lang.php`: added `extensionchange`, `notallowed`, `js.moveButton`, `js.dialogIntro`
+
 ### Update suppression
 
 `plugin.info.txt` `date` set to `2077-06-09` (original day/month, year bumped to 2077). Matches the convention used by our other forked plugins.
 
-## What did NOT change
+## What did NOT change from upstream
 
-Every other file is byte-identical to upstream `fec3759`:
-
-- All PHP — 5,116 LOC across helpers, actions, admin pages, remote handlers
-- All other JS files (`tree.js`, `progress.js`, `rename.js`, `form.js`, `json2.js`, top-level `script.js`)
-- All CSS
-- All 16 language directories
-- All 9 PHP test files
+- All test files (`_test/`)
 - `.github/workflows/`, `README` (original), `LICENSE`, `deleted.files`
-- Admin svg, image assets, config files
+- Admin SVG, image assets, config files (`conf/`)
+- All language files except `lang/ru/lang.php` and `lang/ja/lang.php` (missing strings added)
 
 ## Compatibility
 

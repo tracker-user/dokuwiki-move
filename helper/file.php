@@ -128,11 +128,11 @@ class helper_plugin_move_file extends DokuWiki_Plugin {
 
         if(!is_dir($old_path)) return true; // no media files found
 
-        $dh = @opendir($old_path);
+        $dh = opendir($old_path);
         if($dh) {
             while(($file = readdir($dh)) !== false) {
                 if($file == '.' || $file == '..') continue;
-                $match = array();
+                $match = [];
                 if(is_file($old_path . '/' . $file) && preg_match($regex, $file, $match)) {
                     if(!is_dir($new_path)) {
                         if(!io_mkdir_p($new_path)) {

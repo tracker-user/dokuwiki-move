@@ -44,7 +44,8 @@
             // redirect or display error
             function (result) {
                 if (result.error) {
-                    $dialog.html(result.error.msg);
+                    var errMsg = (result.error && typeof result.error === 'object') ? result.error.msg : result.error;
+                    $dialog.empty().append(jQuery('<p>').text(errMsg));
                 } else {
                     window.location.href = result.redirect_url;
                 }
